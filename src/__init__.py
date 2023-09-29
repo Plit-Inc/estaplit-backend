@@ -26,6 +26,7 @@ def create_app():
 
     @app.route('/parking', methods=['POST'])
     def create_parking():
+        print("teste")
         name = request.json['name']
         address = request.json['address']
         free_vacancies = request.json['free_vacancies']
