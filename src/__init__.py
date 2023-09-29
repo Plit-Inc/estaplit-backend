@@ -41,13 +41,13 @@ def create_app():
         data = request.get_json()
         # O FRONT -> origin, location e o search
         geocode = gmaps.geocode(language="pt-BR", region="BR", place_id=data['place_id'])
-        print(geocode)
-        autocomplete = gmaps.places('estacionamentos em ' + data['search'], location=geocode, language="pt-BR", radius=1000, min_price=None, max_price=None, open_now=False, type="parking", page_token=None)
+        autocomplete = gmaps.places('estacionamentos', location=geocode[0]["geometry"]["location"], language="pt-BR", radius=500, min_price=None, max_price=None, open_now=True, type="parking", page_token=None)
         
+        #testar places_nearby
+
         if autocomplete:
             return jsonify(autocomplete)
         
         return jsonify({"error": "No results found"})
-
 
     return app
