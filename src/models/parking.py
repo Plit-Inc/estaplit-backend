@@ -1,7 +1,7 @@
 import pymongo
 
 class Parking:
-    def __init__(self, name, address, free_vacancies, total_vacancies, free_reservation, total_reservation, pricing, opening_hours, cancellation_policy):
+    def __init__(self, name, address, free_vacancies, total_vacancies, free_reservation, total_reservation, pricing, opening_hours, cancellation_policy, place_id):
         self.name = name
         self.address = address
         self.free_vacancies = free_vacancies
@@ -11,14 +11,17 @@ class Parking:
         self.pricing = pricing
         self.opening_hours = opening_hours
         self.cancellation_policy = cancellation_policy
+        self.place_id = place_id
     
     @staticmethod
     def get_parking_by_id(id):
         client = pymongo.MongoClient('mongodb://localhost:27017/')
         db = client['parking']
         collection = db['parking']
-        parking = collection.find_one({'_id': id})
-        return parking
+        parking = collection.find_one({'place_id': id})
+        if parking:
+            return parking
+        return None
     
     @staticmethod
     def get_all_parking():

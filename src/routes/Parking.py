@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from ..models import parking
+from ..__init__ import gmaps
 
 parking = Blueprint('parking', __name__)
 
@@ -7,10 +8,15 @@ parking = Blueprint('parking', __name__)
 def parking_route_test():
     return {"user": "user", "password": "password"}
 
-@parking.route('/parking', methods=['GET'])
+@parking.route('/get_parking', methods=['POST'])
 def get_parking():
-    return parking.get_parking()
+    data = request.get_json()
 
-@parking.route('/parking', methods=['POST'])
-def post_parking():
-    return parking.post_parking(request.get_json())
+    response = gmaps.place(data['place_id'], language="pt-BR")
+
+    parking = parking.get_parking_by_id(data['place_id'])
+    if parking:
+        response["bd_data"] = parking
+        return response
+
+    return response
