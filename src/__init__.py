@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask import Markup
-from .routes.Search import search
-from .routes.Parking import parking
 import googlemaps
 from dotenv import load_dotenv
 import os
@@ -15,39 +13,18 @@ google_api_key = os.getenv('KEY')
 
 gmaps = googlemaps.Client(key=google_api_key)
 
+def get_gmaps():
+    return gmaps
+
 def create_app():
+    from .routes.Search import search
+    from .routes.Parking import parking
+
     app.register_blueprint(parking, url_prefix="/parking")
-    #app.register_blueprint(search, url_prefix="/search")
+    app.register_blueprint(search)
 
     @app.route('/')
     def hello():
         return {"user": "user", "password": "password"}
-
-############ SEARCH ROUTE
-    @app.route('/search_autocomplete', methods=['POST'])
-    def search_autocomplete():
-        data = request.get_json()
-        # O FRONT -> origin, location e o search
-        autocomplete = gmaps.places_autocomplete(data['search'], origin="-8.112651, -34.965816", location="-8.112651, -34.965816", radius=15000, language="pt-BR", components={"country": ['BR']}, strict_bounds=True, types="geocode")
-        
-        if autocomplete:
-            return jsonify(autocomplete)
-        
-        return jsonify({"error": "No results found"})
-
-
-    @app.route('/search_parkings', methods=['POST'])
-    def search_parkings():
-        data = request.get_json()
-        # O FRONT -> origin, location e o search
-        geocode = gmaps.geocode(language="pt-BR", region="BR", place_id=data['place_id'])
-        autocomplete = gmaps.places('estacionamentos', location=geocode[0]["geometry"]["location"], language="pt-BR", radius=500, min_price=None, max_price=None, open_now=True, type="parking", page_token=None)
-        
-        #testar places_nearby
-
-        if autocomplete:
-            return jsonify(autocomplete)
-        
-        return jsonify({"error": "No results found"})
 
     return app
