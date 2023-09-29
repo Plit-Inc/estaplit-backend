@@ -11,6 +11,29 @@ class Parking:
         self.pricing = pricing
         self.opening_hours = opening_hours
         self.cancellation_policy = cancellation_policy
+    
+    @staticmethod
+    def get_parking_by_id(id):
+        client = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = client['parking']
+        collection = db['parking']
+        parking = collection.find_one({'_id': id})
+        return parking
+    
+    @staticmethod
+    def get_all_parking():
+        client = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = client['parking']
+        collection = db['parking']
+        parking = collection.find()
+        return parking
+    
+    @staticmethod
+    def post_parking(parking):
+        client = pymongo.MongoClient('mongodb://localhost:27017/')
+        db = client['parking']
+        collection = db['parking']
+        collection.insert_one(parking)
 
 class ParkingReservation:
     def __init__(self, parking_id, day, hour):
@@ -21,7 +44,5 @@ class ParkingReservation:
         self.status = 'available'
         self.user_id = None
 
-    @staticmethod
-    def update_reservation_status(parking_id, user_id, status):
-        pass
+    
     
