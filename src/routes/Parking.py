@@ -14,9 +14,17 @@ def get_parking():
 
     response = gmaps.place(data['place_id'], language="pt-BR")
 
-    parking = parking.get_parking_by_id(data['place_id'])
-    if parking:
-        response["bd_data"] = parking
-        return response
+    #parking = parking.get_parking_by_id(data['place_id'])
+    #if parking:
+    #    response["bd_data"] = parking
+    #    return response
 
     return response
+
+@parking.route('/create_parking', methods=['POST'])
+def create_parking():
+    data = request.get_json()
+
+    parking.post_parking(data)
+
+    return {"message": "Parking created successfully"}

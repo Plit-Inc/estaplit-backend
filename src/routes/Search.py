@@ -20,11 +20,13 @@ def search_parkings():
     data = request.get_json()
     # O FRONT -> origin, location e o search
     geocode = gmaps.geocode(language="pt-BR", region="BR", place_id=data['place_id'])
-    autocomplete = gmaps.places('estacionamentos', location=geocode[0]["geometry"]["location"], language="pt-BR", radius=500, min_price=None, max_price=None, open_now=True, type="parking", page_token=None)
-    
+    #places = gmaps.places('estacionamentos', location=geocode[0]["geometry"]["location"], language="pt-BR", radius=500, min_price=None, max_price=None, type="parking", page_token=None)
+    places = gmaps.places_nearby(location=geocode[0]["geometry"]["location"], radius=None, language="pt-BR", rank_by="distance", type="parking")
     #testar places_nearby
 
-    if autocomplete:
-        return jsonify(autocomplete)
+    #falta distancia
+
+    if places:
+        return jsonify(places)
     
     return jsonify({"error": "No results found"})
