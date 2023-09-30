@@ -1,21 +1,20 @@
 import pymongo
+from ..connection import client
+from datetime import datetime, timedelta
 
 class Parking:
-    def __init__(self, name, address, free_vacancies, total_vacancies, free_reservation, total_reservation, pricing, opening_hours, cancellation_policy, place_id):
-        self.name = name
-        self.address = address
+    def __init__(self, free_vacancies, total_vacancies, free_reservation, total_reservation, pricing, cancellation_policy, place_id):
         self.free_vacancies = free_vacancies
         self.total_vacancies = total_vacancies
         self.free_reservation = free_reservation
         self.total_reservation = total_reservation
         self.pricing = pricing
-        self.opening_hours = opening_hours
         self.cancellation_policy = cancellation_policy
         self.place_id = place_id
+        self.reservations = []
     
     @staticmethod
     def get_parking_by_id(id):
-        client = pymongo.MongoClient('mongodb://localhost:27017/')
         db = client['parking']
         collection = db['parking']
         parking = collection.find_one({'place_id': id})
@@ -25,7 +24,6 @@ class Parking:
     
     @staticmethod
     def get_all_parking():
-        client = pymongo.MongoClient('mongodb://localhost:27017/')
         db = client['parking']
         collection = db['parking']
         parking = collection.find()
@@ -33,19 +31,51 @@ class Parking:
     
     @staticmethod
     def post_parking(parking):
-        client = pymongo.MongoClient('mongodb://localhost:27017/')
+        parking['reservations'] = []
         db = client['parking']
         collection = db['parking']
         collection.insert_one(parking)
 
+    @staticmethod
+    def delete_parking(parking):
+        db = client['parking']
+        collection = db['parking']
+        collection.delete_one(parking)
+
+    @staticmethod
+    def generate_reservations(parking):
+        db = client['parking']
+        collection = db['parking']
+        reservations = []
+        today = datetime.now()
+        if today.hour >= 9:
+            today = today + timedelta(days=1)
+        for i in range(7):
+            day, month = today.day, today.month
+            day_of_week = today.weekday()
+            reservations.append([{'day': day, 'month': month, 'day_of_week': day_of_week, 'reservations': []}])
+            for hour in range(10, 14):
+                reservation = ParkingReservation(day, hour)
+                reservations[i][0]['reservations'].append(reservation.__dict__)
+            
+            today = today + timedelta(days=1)
+
+        collection.update_one({'place_id': parking['place_id']}, {'$set': {'reservations': reservations}})
+
+    @staticmethod
+    def make_reservation(parking, day, month, hour):
+        db = client['parking']
+        collection = db['parking']
+        reservations = parking['reservations']
+        for i in range(len(reservations)):
+            reservation = reservations[i][0]
+            if reservation['day'] == day and reservation['month'] == month:
+                reservation['reservations'][hour-10]['status'] = 'unavailable'
+                return True
+        return None
+
 class ParkingReservation:
-    def __init__(self, parking_id, day, hour):
-        self.parking_id = parking_id
+    def __init__(self, day, hour):
         self.day = day
         self.hour = hour
-
-        self.status = 'available'
-        self.user_id = None
-
-    
-    
+        self.status = 'available'    

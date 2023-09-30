@@ -21,7 +21,7 @@ def create_app():
     from .routes.Parking import parking
 
     app.register_blueprint(parking, url_prefix="/parking")
-    app.register_blueprint(search)
+    app.register_blueprint(search, url_prefix="/search")
 
     @app.route('/')
     def hello():

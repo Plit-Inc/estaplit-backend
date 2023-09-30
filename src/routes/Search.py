@@ -7,7 +7,7 @@ search = Blueprint('searchs', __name__)
 def search_autocomplete():
     data = request.get_json()
     # O FRONT -> origin, location e o search
-    autocomplete = gmaps.places_autocomplete(data['search'], origin="-8.112651, -34.965816", location="-8.112651, -34.965816", radius=15000, language="pt-BR", components={"country": ['BR']}, strict_bounds=True, types="geocode")
+    autocomplete = gmaps.places_autocomplete(data['search'], origin="-8.112651, -34.965816", location="-8.112651, -34.965816", radius=20000, language="pt-BR", components={"country": ['BR']}, strict_bounds=True)
     
     if autocomplete:
         return jsonify(autocomplete)
@@ -27,6 +27,7 @@ def search_parkings():
     #falta distancia
 
     if places:
+        places["geocode"] = geocode[0]["geometry"]["location"]
         return jsonify(places)
     
     return jsonify({"error": "No results found"})
