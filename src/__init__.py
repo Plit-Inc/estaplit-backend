@@ -51,20 +51,20 @@ def get_gmaps():
     return gmaps
 
 def create_app():
-    # from .routes.Search import search
-    # from .routes.Parking import parking
+    from .routes.Search import search
+    from .routes.Parking import parking
 
-    # app.register_blueprint(parking, url_prefix="/parking")
-    # app.register_blueprint(search, url_prefix="/search")
+    app.register_blueprint(parking, url_prefix="/parking")
+    app.register_blueprint(search, url_prefix="/search")
 
-    # @api.route('/hello')
-    # class HelloWorld(Resource):
-    #     def get(self):
-    #         return 'hello'
+    @api.route('/hello')
+    class HelloWorld(Resource):
+        def get(self):
+            return 'hello'
 
 
 
-    @ns.route('/make_reservation')
+    @ns.route('-/make_reservation')
     class PostResource(Resource):
         @ns.expect(reservation_input_model)  
         def post(self):
@@ -79,7 +79,7 @@ def create_app():
             }
             return response, 200
         
-    @ns.route('/delete_parking')
+    @ns.route('-/delete_parking')
     class PostResource(Resource):
         @ns.expect(get_place_id_input_model)  
         def post(self):
