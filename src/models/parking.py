@@ -35,6 +35,15 @@ class Parking:
         db = client['parking']
         collection = db['parking']
         collection.insert_one(parking)
+        data = collection.find_one({'place_id': parking['place_id']})
+
+        return data
+    
+    @staticmethod
+    def update_parking(parking):
+        db = client['parking']
+        collection = db['parking']
+        collection.update_one({'place_id': parking['place_id']}, {'$set': parking})
 
     @staticmethod
     def delete_parking(parking):
@@ -52,11 +61,12 @@ class Parking:
             today = today + timedelta(days=1)
         for i in range(7):
             day, month = today.day, today.month
+            #get the day of the week ("0" is Segunda, "6" is Domingo)
             day_of_week = today.weekday()
-            reservations.append([{'day': day, 'month': month, 'day_of_week': day_of_week, 'reservations': []}])
+            reservations.append({'day': day, 'month': month, 'day_of_week': day_of_week, 'reservations': []})
             for hour in range(10, 14):
-                reservation = ParkingReservation(day, hour)
-                reservations[i][0]['reservations'].append(reservation.__dict__)
+                reservation = {'day': day, 'hour': hour, "isAvailable": True}
+                reservations[i]['reservations'].append(reservation)
             
             today = today + timedelta(days=1)
 
@@ -68,14 +78,13 @@ class Parking:
         collection = db['parking']
         reservations = parking['reservations']
         for i in range(len(reservations)):
-            reservation = reservations[i][0]
+            reservation = reservations[i]
             if reservation['day'] == day and reservation['month'] == month:
-                reservation['reservations'][hour-10]['status'] = 'unavailable'
-                return True
-        return None
+                reservation_day = reservation['reservations']
+                for j in range(len(reservation_day)):
+                    if reservation_day[j]['hour'] == hour:
+                        parking['reservations'][i]['reservations'][j]['isAvailable'] = False
+                        Parking.update_parking(parking)
 
-class ParkingReservation:
-    def __init__(self, day, hour):
-        self.day = day
-        self.hour = hour
-        self.status = 'available'    
+                        return True
+        return None

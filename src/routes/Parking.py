@@ -30,7 +30,7 @@ def get_parking(place_id):
 
     print(get_distance(lat1, lng1, lat2, lng2))
     directions = gmaps.directions((lat1, lng1), (lat2, lng2), mode="walking", language="pt-BR")
-    
+
 
     if parking_search:
         response["bd_data"] = parking_search
@@ -43,7 +43,9 @@ def get_parking(place_id):
 def create_parking():
     data = request.get_json()
 
-    Parking.post_parking(data)
+    parking = Parking.post_parking(data)
+
+    Parking.generate_reservations(parking)
 
     return {"message": "Parking created successfully"}
 
@@ -61,7 +63,7 @@ def make_reservation():
 
     parking = Parking.get_parking_by_id(data['place_id'])
 
-    if Parking.make_reservation(parking, 30, 9, 12):
+    if Parking.make_reservation(parking, data['day'], data['month'], data['hour']):
         return {"message": "Reservation made successfully"}
     
     return {"message": "Reservation failed"}
