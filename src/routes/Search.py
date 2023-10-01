@@ -48,7 +48,7 @@ def search_parkings():
             if place_details and "result" in place_details:
                 result = place_details["result"]
                 # Obtenha a URL da imagem do estacionamento
-                photo_url = get_parking_photo_url(place_details)
+                photo_url = get_parking_photo_url(result)
                 if photo_url:
                     place["photo_url"] = photo_url
 
