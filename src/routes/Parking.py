@@ -30,7 +30,7 @@ def get_parking(place_id):
 
     print(get_distance(lat1, lng1, lat2, lng2))
     directions = gmaps.directions((lat1, lng1), (lat2, lng2), mode="walking", language="pt-BR")
-
+    
 
     if parking_search:
         response["bd_data"] = parking_search
