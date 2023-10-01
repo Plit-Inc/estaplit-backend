@@ -9,17 +9,24 @@ parking = Blueprint('parking', __name__)
 def parking_route_test():
     return {"user": "user", "password": "password"}
 
-@parking.route('/get_parking', methods=['POST'])
-def get_parking():
-    data = request.get_json()
+@parking.route('/get_parking/<place_id>', methods=['GET'])
+def get_parking(place_id):
+    args = request.args
+    long, lat = args['long'], args['lat']
+    geo_dict = {
+        "geocode": {
+            "lat": float(lat),
+            "long": float(long)
+        }
+    }
 
-    response = gmaps.place(data['place_id'], language="pt-BR")
+    response = gmaps.place(place_id, language="pt-BR")
 
-    parking_search = Parking.get_parking_by_id(data['place_id'])
+    parking_search = Parking.get_parking_by_id(place_id)
     #if data["generate_reservations"] == True: Parking.generate_reservations(parking_search)
 
     lat1, lng1 = response["result"]['geometry']['location']['lat'], response["result"]['geometry']['location']['lng']
-    lat2, lng2 = data['geocode']['lat'], data['geocode']['lng']
+    lat2, lng2 = geo_dict['geocode']['lat'], geo_dict['geocode']['long']
 
     print(get_distance(lat1, lng1, lat2, lng2))
     directions = gmaps.directions((lat1, lng1), (lat2, lng2), mode="walking", language="pt-BR")
@@ -40,11 +47,10 @@ def create_parking():
 
     return {"message": "Parking created successfully"}
 
-@parking.route('delete_parking', methods=['POST'])
-def delete_parking():
-    data = request.get_json()
+@parking.route('delete_parking/<place_id>', methods=['DELETE'])
+def delete_parking(place_id):
 
-    Parking.delete_parking(data)
+    Parking.delete_parking({place_id: place_id})
 
     return {"message": "Parking deleted successfully"}
 

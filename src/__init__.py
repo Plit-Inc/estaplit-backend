@@ -64,7 +64,7 @@ def create_app():
 
 
 
-    @ns.route('-/make_reservation')
+    @ns.route('/make_reservation')
     class PostResource(Resource):
         @ns.expect(reservation_input_model)  
         def post(self):
