@@ -47,6 +47,8 @@ def create_parking():
 
     Parking.generate_reservations(parking)
 
+    print(parking)
+    
     return {"message": "Parking created successfully"}
 
 @parking.route('delete_parking/<place_id>', methods=['DELETE'])
@@ -63,7 +65,28 @@ def make_reservation():
 
     parking = Parking.get_parking_by_id(data['place_id'])
 
-    if Parking.make_reservation(parking, data['day'], data['month'], data['hour']):
+    if Parking.make_reservation(parking, data['day'], data['month'], data['hour'], data['user_phone']):
         return {"message": "Reservation made successfully"}
     
     return {"message": "Reservation failed"}
+
+@parking.route('/get_parking_owner/<phone>', methods=['GET'])
+def get_parking_owner(phone):
+    parking_owner = Parking.get_parking_owner(phone)
+
+    if parking_owner:
+        return parking_owner
+    
+    return {"message": "Parking owner not found"}
+
+
+@parking.route('/update_parking_owner/<phone>', methods=['PUT'])
+def update_parking_owner(phone):
+    data = request.get_json()
+
+    parking_owner = Parking.update_parking_owner(phone, data)
+
+    if parking_owner:
+        return parking_owner
+    
+    return {"message": "Parking owner not found"}

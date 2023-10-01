@@ -15,6 +15,8 @@ class Parking:
         self.cancellation_policy = cancellation_policy
         self.place_id = place_id
         self.reservations = []
+        self.is_open = False
+        self.phone = None
 
     @classmethod
     def initialize_db_and_collection(cls, db_name='parking', collection_name='parking'):
@@ -27,6 +29,12 @@ class Parking:
         if parking: return parking
         return None
     
+    @staticmethod
+    def get_parking_by_owner(phone):
+        parking = Parking.collection.find_one({'owner_phone': phone})
+        if parking: return parking
+        return None
+
     @staticmethod
     def get_all_parking():
         parking = Parking.collection.find()
@@ -89,4 +97,13 @@ class Parking:
                             return True  # Reservation successful
                         else:
                             return False  # Slot is already taken
+        return None
+    
+    @staticmethod
+    def update_parking_owner(phone, data):
+        parking = Parking.get_parking_by_owner(phone)
+        if parking:
+            parking['phone'] = data['phone']
+            Parking.update_parking(data)
+            return parking
         return None

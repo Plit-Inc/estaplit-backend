@@ -6,9 +6,6 @@ from dotenv import load_dotenv
 import os
 from flask_restx import Api, Resource, fields
 
-
-
-
 load_dotenv()
 app = Flask(__name__)
 
@@ -53,16 +50,16 @@ def get_gmaps():
 def create_app():
     from .routes.Search import search
     from .routes.Parking import parking
+    from .routes.User import user
 
     app.register_blueprint(parking, url_prefix="/parking")
     app.register_blueprint(search, url_prefix="/search")
+    app.register_blueprint(user, url_prefix="/user")
 
     @api.route('/hello')
     class HelloWorld(Resource):
         def get(self):
             return 'hello'
-
-
 
     @ns.route('/make_reservation')
     class PostResource(Resource):
