@@ -1,6 +1,7 @@
 import pymongo
 from ..connection import client
 from datetime import datetime, timedelta
+from .user import User
 
 class Parking:
     db = client['parking']
@@ -43,6 +44,8 @@ class Parking:
     @staticmethod
     def post_parking(parking):
         parking['reservations'] = []
+        parking['made_reservations'] = []
+        parking['is_open'] = False
         Parking.collection.insert_one(parking)
         data = Parking.collection.find_one({'place_id': parking['place_id']})
         return data
@@ -86,14 +89,24 @@ class Parking:
         Parking.collection.update_one({'place_id': parking['place_id']}, {'$set': {'reservations': reservations}})
 
     @staticmethod
-    def make_reservation(parking, day, month, hour):
+    def make_reservation(parking, day, month, hour, user_phone):
         for reservation in parking['reservations']:
             if reservation['day'] == day and reservation['month'] == month:
                 for timeslot in reservation['reservations']:
                     if timeslot['hour'] == hour:
                         if timeslot['isAvailable']:
                             timeslot['isAvailable'] = False
+
+                            
+                            parking['made_reservations'].append({
+                                'day': day,
+                                'month': month,
+                                'hour': hour,
+                                'user': user_phone
+                            })
+                            user = User.get_user_by_phone(user_phone)
                             Parking.update_parking(parking)
+
                             return True  # Reservation successful
                         else:
                             return False  # Slot is already taken
