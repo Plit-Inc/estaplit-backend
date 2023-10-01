@@ -134,3 +134,4 @@ dmypy.json
 
 # venv directory
 projetao/
+.vercel
